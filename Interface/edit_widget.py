@@ -25,7 +25,7 @@ class EditAccountDialog(AddAccountDialog):
         cursor = connection.cursor()
 
         # Get account data from DB
-        query = "SELECT email, wallet, twitter, discord FROM accounts WHERE id = ?"
+        query = "SELECT email, wallet_address, twitter, discord FROM accounts WHERE id = ?"
         result = cursor.execute(query, (self.account_id,))
         account_data = result.fetchone()
 
@@ -60,34 +60,6 @@ class EditAccountDialog(AddAccountDialog):
             QMessageBox.warning(self, "Error", "Type valid Email address")
             return
 
-        # Check conditions for Twitter field
-        if len(twitter) == 0:
-            pass
-        elif twitter.startswith("@") and len(twitter) >= 4:
-            # Save Twitter account
-            pass
-        else:
-            QMessageBox.warning(self, "Error",
-                                "Twitter account should start with '@' and contain at least 4 characters")
-            return
-
-        # Check conditions for Discord field
-        if len(discord) == 0:
-            pass
-        elif discord[:discord.find('#')].isalpha() and "#" in discord:
-            index = discord.index("#")
-            if len(discord[index + 1:]) >= 2:
-                # Save Discord account
-                pass
-            else:
-                QMessageBox.warning(self, "Error",
-                                    "Discord account should contain '#' followed by at least 2 letters/numbers")
-                return
-        else:
-            QMessageBox.warning(self, "Error",
-                                "Discord account should start with letters and contain '#' followed by at least 2 letters/numbers")
-            return
-
         connection = sqlite3.connect('../DB/database.db')
         cursor = connection.cursor()
 
@@ -101,8 +73,8 @@ class EditAccountDialog(AddAccountDialog):
             return
 
         # Update account in DB
-        query = "UPDATE accounts SET email = ?, wallet = ?, twitter =?, discord = ? WHERE id = ?"
-        cursor.execute(query, (email, wallet, twitter, discord, self.account_id))
+        query = "UPDATE accounts SET email=?, wallet_address=?, twitter=?, discord=? WHERE id=?"
+        cursor.execute(query, (email, wallet or None, twitter or None, discord or None, self.account_id))
 
         connection.commit()
         connection.close()
@@ -116,3 +88,4 @@ class EditAccountDialog(AddAccountDialog):
 
     def reject(self):
         super().reject()
+

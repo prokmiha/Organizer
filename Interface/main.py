@@ -2,7 +2,7 @@ import os
 import sqlite3
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QDialog, QDesktopWidget, QWidget, \
-    QVBoxLayout
+    QVBoxLayout, QMessageBox
 from add_acc_widget import AddAccountDialog
 from profile_edit_widget import ProfileWindow
 from DB.create_dp import create_db
@@ -24,6 +24,9 @@ class MainWindow(QMainWindow):
         self.resize(width, height)
         self.setWindowTitle("Account Manager")
 
+        if not os.path.isfile('../DB/database.db'):
+            create_db()
+
         self.add_account_button = QPushButton("Add account", self)
         self.add_account_button.setGeometry(25, 25, 100, 50)
         self.add_account_button.clicked.connect(self.show_add_account_dialog)
@@ -32,36 +35,39 @@ class MainWindow(QMainWindow):
         self.edit_profile_button.setGeometry(self.add_account_button.x() +
                                              self.add_account_button.width() + 20, 25, 100, 50)
         self.edit_profile_button.clicked.connect(self.show_profile_window)
-
-        if not os.path.isfile('../DB/database.db'):
-            create_db()
-
         conn = sqlite3.connect('../DB/database.db')
-
     def show_add_account_dialog(self):
-        dialog = AddAccountDialog()
-        if dialog.exec_() == QDialog.Accepted:
-            email = dialog.email_line_edit.text()
-            wallet_address = dialog.wallet_line_edit.text()  # использование правильного имени переменной
-            twitter = dialog.twitter_line_edit.text()
-            discord = dialog.discord_line_edit.text()
-            self.save_to_db(email, wallet_address, twitter, discord)  # использование правильного имени метода
-        else:
-            pass
-
-    def save_to_db(self, email, wallet_address, twitter, discord):
-        conn = sqlite3.connect('../DB/database.db')
-        cursor = conn.cursor()
         try:
-            cursor.execute("INSERT INTO accounts (email, wallet_address, twitter, discord) VALUES (?, ?, ?, ?)",
-                           (email, wallet_address, twitter, discord))
-            conn.commit()
-            print("Data inserted successfully!")
+            if AddAccountDialog().exec_() == QDialog.Accepted:
+                email = AddAccountDialog().email_line_edit.text()
+                wallet_address = AddAccountDialog().wallet_line_edit.text()  # использование правильного имени переменной
+                twitter = AddAccountDialog().twitter_line_edit.text()
+                discord = AddAccountDialog().discord_line_edit.text()
+                extra_info = AddAccountDialog().extra_info_text_edit.text()
+                self.save_to_db(email, wallet_address, twitter, discord, extra_info)  # использование правильного имени метода
+            else:
+                print('Error')
         except Exception as e:
-            print("Error while inserting data:", e)
-            conn.rollback()
-        finally:
-            conn.close()
+            QMessageBox.warning(self, "Error", f"Failed to save account to the database: {e}")
+
+    def save_to_db(self, email, wallet_address, twitter, discord, extra_info):
+        print(1)
+        try:
+            print(2)
+            connection = sqlite3.connect('../DB/database.db')
+            cursor = connection.cursor()
+
+            query = "INSERT INTO accounts (email, wallet_address, twitter, discord, extra_info) VALUES (?, ?, ?, ?, ?)"
+            cursor.execute(query, (email, wallet_address, twitter, discord, extra_info))
+
+            connection.commit()
+            connection.close()
+            print("Account has been saved to the database.")
+            return True
+
+        except Exception as e:
+            print(f"Failed to save account to the database: {e}")
+            return False
 
     def show_profile_window(self):
         profile_window = ProfileWindow()
