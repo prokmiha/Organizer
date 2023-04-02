@@ -1,3 +1,5 @@
+# Вікно, після натискання Edit Profile
+
 import sqlite3
 
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QWidget
