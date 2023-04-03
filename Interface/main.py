@@ -36,15 +36,21 @@ class MainWindow(QMainWindow):
                                              self.add_account_button.width() + 20, 25, 100, 50)
         self.edit_profile_button.clicked.connect(self.show_profile_window)
         conn = sqlite3.connect('../DB/database.db')
+
     def show_add_account_dialog(self):
         try:
-            if AddAccountDialog().exec_() == QDialog.Accepted:
-                email = AddAccountDialog().email_line_edit.text()
-                wallet_address = AddAccountDialog().wallet_line_edit.text()  # использование правильного имени переменной
-                twitter = AddAccountDialog().twitter_line_edit.text()
-                discord = AddAccountDialog().discord_line_edit.text()
-                extra_info = AddAccountDialog().extra_info_text_edit.text()
-                self.save_to_db(email, wallet_address, twitter, discord, extra_info)  # использование правильного имени метода
+            dialog = AddAccountDialog(self)
+            if dialog.exec() == QDialog.Accepted:
+                email = dialog .email_line_edit.text()
+                wallet_address = dialog.wallet_address_line_edit.text()  # использование правильного имени переменной
+                twitter = dialog.twitter_line_edit.text()
+                discord = dialog.discord_line_edit.text()
+                extra_info = dialog .extra_info_text_edit.toPlainText()
+                self.save_to_db(email,
+                                wallet_address,
+                                twitter,
+                                discord,
+                                extra_info)  # использование правильного имени метода
             else:
                 print('Error')
         except Exception as e:
