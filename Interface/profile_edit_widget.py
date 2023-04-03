@@ -35,7 +35,8 @@ class ProfileWindow(QDialog):
 
     def edit_widget(self, account_id):
         try:
-            if EditAccountDialog(account_id=account_id).exec_() == QDialog.Accepted:
+            dialog = EditAccountDialog(account_id=account_id, parent=self)
+            if dialog.exec() == QDialog.Accepted:
                 print('Not Error')
             else:
                 print('Errorot')

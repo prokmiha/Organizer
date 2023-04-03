@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import QDialog, QPushButton, QLineEdit, QLabel, QTextEdit, 
 
 
 class AddAccountDialog(QDialog):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Add new account")
         self.create_button = QPushButton("Create")
         self.create_button.clicked.connect(self.save_account_to_db)

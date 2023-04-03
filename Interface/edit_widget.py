@@ -7,8 +7,8 @@ from Interface.add_acc_widget import AddAccountDialog
 
 
 class EditAccountDialog(AddAccountDialog):
-    def __init__(self, account_id):
-        super().__init__()
+    def __init__(self, account_id, parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Edit account")
         self.account_id = account_id
         self.load_account_data()
@@ -56,7 +56,7 @@ class EditAccountDialog(AddAccountDialog):
         wallet = self.wallet_address_line_edit.text()
         twitter = self.twitter_line_edit.text()
         discord = self.discord_line_edit.text()
-        extra_info = self.extra_info_text_edit.text()
+        extra_info = self.extra_info_text_edit.toPlainText()
         print(email, wallet, twitter, discord, extra_info, sep='\n')
 
         if not self.is_valid_email(email):
@@ -78,7 +78,8 @@ class EditAccountDialog(AddAccountDialog):
 
         # Update account in DB
         query = "UPDATE accounts SET email=?, wallet_address=?, twitter=?, discord=?, extra_info=? WHERE id=?"
-        cursor.execute(query, (email, wallet or None, twitter or None, discord or None, extra_info or None, self.account_id))
+        cursor.execute(query,
+                       (email, wallet or None, twitter or None, discord or None, extra_info or None, self.account_id))
 
         connection.commit()
         connection.close()
