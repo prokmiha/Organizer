@@ -6,6 +6,7 @@ from functools import partial
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QWidget
 from edit_widget import EditAccountDialog
 
+
 class ProfileWindow(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -34,12 +35,9 @@ class ProfileWindow(QDialog):
 
     def edit_widget(self, account_id):
         try:
-            print('Hello')
-            widget = EditAccountDialog(account_id=account_id)
-            print('Hello')
-            if widget.exec_() == QDialog.Accepted:
+            if EditAccountDialog(account_id=account_id).exec_() == QDialog.Accepted:
                 print('Not Error')
             else:
-                print('Error')
+                print('Errorot')
         except Exception as e:
-            print('Error:', e)
+            print('Errorio:', e)

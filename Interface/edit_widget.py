@@ -1,5 +1,3 @@
-# Вікно, після натискання Edit на конкретний профіль
-
 import re
 import sqlite3
 
@@ -15,24 +13,27 @@ class EditAccountDialog(AddAccountDialog):
         self.account_id = account_id
         self.load_account_data()
         self.create_button.setText("Save")
+        # self.create_button.clicked.connect(self.save_account_to_db)
         delete_button = QPushButton("Delete")
         delete_button.clicked.connect(self.delete_account)
         layout = self.layout()
         layout.addWidget(delete_button)
+        print(account_id)
 
     def load_account_data(self):
         connection = sqlite3.connect('../DB/database.db')
         cursor = connection.cursor()
 
         # Get account data from DB
-        query = "SELECT email, wallet_address, twitter, discord FROM accounts WHERE id = ?"
+        query = "SELECT email, wallet_address, twitter, discord, extra_info FROM accounts WHERE id = ?"
         result = cursor.execute(query, (self.account_id,))
         account_data = result.fetchone()
 
         self.email_line_edit.setText(account_data[0])
-        self.wallet_line_edit.setText(account_data[1])
+        self.wallet_address_line_edit.setText(account_data[1])
         self.twitter_line_edit.setText(account_data[2])
         self.discord_line_edit.setText(account_data[3])
+        self.extra_info_text_edit.setText(account_data[4])
 
         connection.close()
 
@@ -52,9 +53,11 @@ class EditAccountDialog(AddAccountDialog):
 
     def save_account_to_db(self):
         email = self.email_line_edit.text()
-        wallet = self.wallet_line_edit.text()
+        wallet = self.wallet_address_line_edit.text()
         twitter = self.twitter_line_edit.text()
         discord = self.discord_line_edit.text()
+        extra_info = self.extra_info_text_edit.text()
+        print(email, wallet, twitter, discord, extra_info, sep='\n')
 
         if not self.is_valid_email(email):
             QMessageBox.warning(self, "Error", "Type valid Email address")
@@ -64,6 +67,7 @@ class EditAccountDialog(AddAccountDialog):
         cursor = connection.cursor()
 
         # Check if an account with the same email already exists
+
         query = "SELECT id FROM accounts WHERE email = ?"
         result = cursor.execute(query, (email,))
         existing_account = result.fetchone()
@@ -73,8 +77,8 @@ class EditAccountDialog(AddAccountDialog):
             return
 
         # Update account in DB
-        query = "UPDATE accounts SET email=?, wallet_address=?, twitter=?, discord=? WHERE id=?"
-        cursor.execute(query, (email, wallet or None, twitter or None, discord or None, self.account_id))
+        query = "UPDATE accounts SET email=?, wallet_address=?, twitter=?, discord=?, extra_info=? WHERE id=?"
+        cursor.execute(query, (email, wallet or None, twitter or None, discord or None, extra_info or None, self.account_id))
 
         connection.commit()
         connection.close()
@@ -88,4 +92,3 @@ class EditAccountDialog(AddAccountDialog):
 
     def reject(self):
         super().reject()
-
